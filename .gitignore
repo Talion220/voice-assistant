@@ -1,0 +1,15 @@
+# PyCharm
+.idea/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Vosk модели
+model_small/
+
+# OS temporary files
+.DS_Store
+Thumbs.db
