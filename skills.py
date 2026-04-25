@@ -12,13 +12,11 @@ except:
     pass
 
 def browser():
-    '''Открывает браузер заданнный по уполчанию в системе с url указанным здесь'''
 
     webbrowser.open('https://ya.ru', new=2)
 
 
 def game():
-    '''Нужно разместить путь к exe файлу любого вашего приложения'''
     try:
         subprocess.Popen('C:/Windows/system32/mspaint.exe')
     except:
@@ -31,15 +29,14 @@ def time():
     voice.speaker(f"Текущее время: {hours} часов {minutes} минут")
 
 def offpc():
-    #Эта команда отключает ПК под управлением Windows
+    #отключает ПК под управлением Windows
 
     #os.system('shutdown \s')
     print('пк был бы выключен, но команде # в коде мешает;)))')
 
 
 def weather():
-    '''Для работы этого кода нужно зарегистрироваться на сайте
-    https://openweathermap.org или переделать на ваше усмотрение под что-то другое'''
+    '''Для работы нужно зарегистрироваться на сайте https://openweathermap.org '''
     try:
         params = {'q': 'Krasnoyarsk', 'units': 'metric', 'lang': 'ru', 'appid': 'f5b76d1ea4b8a6b22819e0fd530612ec'}
         response = requests.get(f'https://api.openweathermap.org/data/2.5/weather', params=params)
