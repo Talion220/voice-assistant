@@ -67,6 +67,7 @@ class VoiceAssistantApp:
             fg_color="transparent",
             hover_color=("#E0E0E0", "#2A2A2A"),
             font=ctk.CTkFont(size=18),
+            text_color=("#000000", "#FFFFFF"),
             command=self.show_settings
         )
         self.settings_button.place(x=310, y=10)
@@ -75,7 +76,7 @@ class VoiceAssistantApp:
             self.main_frame,
             text="🎤 Боря",
             font=ctk.CTkFont(size=28, weight="bold"),
-            text_color="white",
+            text_color=("#000000", "#FFFFFF"),
         )
         self.title_label.pack(pady=(20, 5))
 
@@ -83,7 +84,7 @@ class VoiceAssistantApp:
             self.main_frame,
             text="Твой персональный ассистент",
             font=ctk.CTkFont(size=12),
-            text_color="gray"
+            text_color=("#666666", "#999999")
         )
         self.subtitle_label.pack(pady=(0, 15))
 
@@ -102,7 +103,7 @@ class VoiceAssistantApp:
             self.status_frame,
             text="Остановлен",
             font=ctk.CTkFont(size=14),
-            text_color="white"
+            text_color=("#000000", "#FFFFFF")
         )
         self.status_label.pack(side="left")
 
@@ -125,7 +126,7 @@ class VoiceAssistantApp:
             self.main_frame,
             text="Скажите \"Боря\" для активации",
             font=ctk.CTkFont(size=11),
-            text_color="gray"
+            text_color=("#666666", "#999999")
         )
         self.hint_label.pack(pady=(10, 15))
 
@@ -144,6 +145,7 @@ class VoiceAssistantApp:
             fg_color="transparent",
             hover_color=("#E0E0E0", "#2A2A2A"),
             font=ctk.CTkFont(size=18),
+            text_color=("#000000", "#FFFFFF"),
             command=self.show_main
         )
         self.back_button.place(x=10, y=10)
@@ -152,7 +154,7 @@ class VoiceAssistantApp:
             self.settings_frame,
             text="Настройки",
             font=ctk.CTkFont(size=24, weight="bold"),
-            text_color="white"
+            text_color=("#000000", "#FFFFFF")
         )
         self.settings_title.pack(pady=(20, 30))
 
@@ -163,7 +165,7 @@ class VoiceAssistantApp:
             self.theme_frame,
             text="Темная тема",
             font=ctk.CTkFont(size=16),
-            text_color="white"
+            text_color=("#000000", "#FFFFFF")
         )
         self.theme_label.pack(side="left", padx=(0, 20))
 
