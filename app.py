@@ -35,6 +35,7 @@ class VoiceAssistantApp:
 
         self.running = False
         self.thread = None
+        self.current_theme = "dark"
 
         self.q = queue.Queue()
         self.model = vosk.Model('model_small')
@@ -56,6 +57,19 @@ class VoiceAssistantApp:
             fg_color=("#F5F5F5", "#1A1A1A")
         )
         self.main_frame.pack(pady=20, padx=20, fill="both", expand=True)
+
+        self.settings_button = ctk.CTkButton(
+            self.main_frame,
+            text="⚙",
+            width=30,
+            height=30,
+            corner_radius=8,
+            fg_color="transparent",
+            hover_color=("#E0E0E0", "#2A2A2A"),
+            font=ctk.CTkFont(size=18),
+            command=self.show_settings
+        )
+        self.settings_button.place(x=310, y=10)
 
         self.title_label = ctk.CTkLabel(
             self.main_frame,
@@ -114,6 +128,73 @@ class VoiceAssistantApp:
             text_color="gray"
         )
         self.hint_label.pack(pady=(10, 15))
+
+        self.settings_frame = ctk.CTkFrame(
+            self.root,
+            corner_radius=16,
+            fg_color=("#F5F5F5", "#1A1A1A")
+        )
+
+        self.back_button = ctk.CTkButton(
+            self.settings_frame,
+            text="←",
+            width=30,
+            height=30,
+            corner_radius=8,
+            fg_color="transparent",
+            hover_color=("#E0E0E0", "#2A2A2A"),
+            font=ctk.CTkFont(size=18),
+            command=self.show_main
+        )
+        self.back_button.place(x=10, y=10)
+
+        self.settings_title = ctk.CTkLabel(
+            self.settings_frame,
+            text="Настройки",
+            font=ctk.CTkFont(size=24, weight="bold"),
+            text_color="white"
+        )
+        self.settings_title.pack(pady=(20, 30))
+
+        self.theme_frame = ctk.CTkFrame(self.settings_frame, fg_color="transparent")
+        self.theme_frame.pack(pady=10)
+
+        self.theme_label = ctk.CTkLabel(
+            self.theme_frame,
+            text="Темная тема",
+            font=ctk.CTkFont(size=16),
+            text_color="white"
+        )
+        self.theme_label.pack(side="left", padx=(0, 20))
+
+        self.theme_switch = ctk.CTkSwitch(
+            self.theme_frame,
+            text="",
+            command=self.toggle_theme,
+            button_color=PRIMARY_COLOR,
+            button_hover_color=PRIMARY_HOVER,
+            progress_color=PRIMARY_COLOR
+        )
+        self.theme_switch.pack(side="left")
+        self.theme_switch.select()
+
+    def show_settings(self):
+        self.main_frame.pack_forget()
+        self.settings_frame.pack(pady=20, padx=20, fill="both", expand=True)
+
+    def show_main(self):
+        self.settings_frame.pack_forget()
+        self.main_frame.pack(pady=20, padx=20, fill="both", expand=True)
+
+    def toggle_theme(self):
+        if self.theme_switch.get():
+            ctk.set_appearance_mode("dark")
+            self.current_theme = "dark"
+            self.theme_label.configure(text="Темная тема")
+        else:
+            ctk.set_appearance_mode("light")
+            self.current_theme = "light"
+            self.theme_label.configure(text="Светлая тема")
 
     def toggle(self):
         if not self.running:
