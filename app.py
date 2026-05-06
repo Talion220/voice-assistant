@@ -29,7 +29,15 @@ class VoiceAssistantApp:
     def __init__(self, root):
         self.root = root
         self.root.title("Боря - Голосовой ассистент")
-        self.root.geometry("400x280")
+
+        window_width = 400
+        window_height = 280
+        screen_width = self.root.winfo_screenwidth()
+        screen_height = self.root.winfo_screenheight()
+        center_x = int(screen_width / 2 - window_width / 2) - 500
+        center_y = int(screen_height / 2 - window_height / 2) - 60
+        self.root.geometry(f"{window_width}x{window_height}+{center_x}+{center_y}")
+
         self.root.resizable(False, False)
         self.root.protocol("WM_DELETE_WINDOW", self.on_closing)
 
