@@ -20,25 +20,27 @@ import voice
 ctk.set_appearance_mode("dark")
 ctk.set_default_color_theme("blue")
 
+PRIMARY_COLOR = "#005bff"
+PRIMARY_HOVER = "#0047cc"
+DANGER_COLOR = "#E53935"
+DANGER_HOVER = "#C62828"
+
 class VoiceAssistantApp:
     def __init__(self, root):
         self.root = root
         self.root.title("Боря - Голосовой ассистент")
-        self.root.geometry("400x250")
+        self.root.geometry("400x280")
         self.root.resizable(False, False)
         self.root.protocol("WM_DELETE_WINDOW", self.on_closing)
 
-        # Переменные для управления потоком
         self.running = False
         self.thread = None
 
-        # Настройки аудио и модели
         self.q = queue.Queue()
         self.model = vosk.Model('model_small')
         self.device = sd.default.device
         self.samplerate = int(sd.query_devices(self.device[0], 'input')['default_samplerate'])
 
-        # Обучение классификатора
         self.vectorizer = CountVectorizer()
         vectors = self.vectorizer.fit_transform(list(words.data_set.keys()))
         self.clf = LogisticRegression()
@@ -48,13 +50,18 @@ class VoiceAssistantApp:
         self.setup_ui()
 
     def setup_ui(self):
-        self.main_frame = ctk.CTkFrame(self.root, corner_radius=16)
+        self.main_frame = ctk.CTkFrame(
+            self.root,
+            corner_radius=16,
+            fg_color=("#F5F5F5", "#1A1A1A")
+        )
         self.main_frame.pack(pady=20, padx=20, fill="both", expand=True)
 
         self.title_label = ctk.CTkLabel(
             self.main_frame,
-            text="🎙️ Боря",
-            font=ctk.CTkFont(size=24, weight="bold")
+            text="🎤 Боря",
+            font=ctk.CTkFont(size=28, weight="bold"),
+            text_color="white",
         )
         self.title_label.pack(pady=(20, 5))
 
@@ -64,7 +71,7 @@ class VoiceAssistantApp:
             font=ctk.CTkFont(size=12),
             text_color="gray"
         )
-        self.subtitle_label.pack(pady=(0, 20))
+        self.subtitle_label.pack(pady=(0, 15))
 
         self.status_frame = ctk.CTkFrame(self.main_frame, fg_color="transparent")
         self.status_frame.pack(pady=5)
@@ -72,29 +79,33 @@ class VoiceAssistantApp:
         self.status_indicator = ctk.CTkLabel(
             self.status_frame,
             text="●",
-            font=ctk.CTkFont(size=14),
-            text_color="red"
+            font=ctk.CTkFont(size=16),
+            text_color="#FF5252"
         )
-        self.status_indicator.pack(side="left", padx=(0, 5))
+        self.status_indicator.pack(side="left", padx=(0, 8))
 
         self.status_label = ctk.CTkLabel(
             self.status_frame,
             text="Остановлен",
-            font=ctk.CTkFont(size=14)
+            font=ctk.CTkFont(size=14),
+            text_color="white"
         )
         self.status_label.pack(side="left")
 
         self.btn = ctk.CTkButton(
             self.main_frame,
-            text="🚀 Запустить ассистента",
+            text="Запустить ассистента",
             command=self.toggle,
-            width=200,
-            height=50,
-            corner_radius=16,
+            width=250,
+            height=80,
+            corner_radius=20,
             font=ctk.CTkFont(size=16, weight="bold"),
-            hover_color="#1E88E5",
+            fg_color=PRIMARY_COLOR,
+            hover_color=PRIMARY_HOVER,
+            border_width=2,
+            border_color=PRIMARY_COLOR
         )
-        self.btn.pack(pady=20)
+        self.btn.pack(pady=15, padx=30)
 
         self.hint_label = ctk.CTkLabel(
             self.main_frame,
@@ -102,7 +113,7 @@ class VoiceAssistantApp:
             font=ctk.CTkFont(size=11),
             text_color="gray"
         )
-        self.hint_label.pack(pady=(5, 10))
+        self.hint_label.pack(pady=(10, 15))
 
     def toggle(self):
         if not self.running:
@@ -112,22 +123,31 @@ class VoiceAssistantApp:
 
     def start(self):
         self.running = True
-        self.btn.configure(text="⏹ Остановить ассистента", fg_color="#E53935", hover_color="#C62828")
-        self.status_indicator.configure(text_color="green")
+        self.btn.configure(
+            text="█  Остановить ассистента",
+            fg_color=DANGER_COLOR,
+            hover_color=DANGER_HOVER,
+            border_color=DANGER_COLOR
+        )
+        self.status_indicator.configure(text_color="#4CAF50")
         self.status_label.configure(text="Активен - слушаю...")
         self.hint_label.configure(text="Говорите команду после слова \"Боря\"")
-        self.title_label.configure(text="🎙️ Боря (активен)")
 
         self.thread = threading.Thread(target=self._run_assistant, daemon=True)
         self.thread.start()
 
     def stop(self):
         self.running = False
-        self.btn.configure(text="🚀 Запустить ассистента", fg_color="#1E88E5", hover_color="#1565C0")
-        self.status_indicator.configure(text_color="red")
+        self.btn.configure(
+            text="Запустить ассистента",
+            fg_color=PRIMARY_COLOR,
+            hover_color=PRIMARY_HOVER,
+            border_color=PRIMARY_COLOR
+        )
+        self.status_indicator.configure(text_color="#FF5252")
         self.status_label.configure(text="Остановлен")
         self.hint_label.configure(text="Скажите \"Боря\" для активации")
-        self.title_label.configure(text="🎙️ Боря")
+        self.title_label.configure(text="🎤 Боря")
         print("Остановка ассистента...")
 
     def on_closing(self):
