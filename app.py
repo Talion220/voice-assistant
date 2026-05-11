@@ -3,8 +3,8 @@ import customtkinter as ctk
 from PIL import Image
 import os
 
-from sklearn.feature_extraction.text import CountVectorizer
-from sklearn.linear_model import LogisticRegression
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
 import sounddevice as sd
 import vosk
 
@@ -12,6 +12,7 @@ import json
 import queue
 import sys
 import traceback
+import numpy as np
 
 import words
 from skills import *
@@ -28,7 +29,7 @@ DANGER_HOVER = "#C62828"
 class VoiceAssistantApp:
     def __init__(self, root):
         self.root = root
-        self.root.title("Боря - Голосовой ассистент")
+        self.root.title("Нова - Голосовой ассистент")
 
         window_width = 400
         window_height = 280
@@ -44,16 +45,17 @@ class VoiceAssistantApp:
         self.running = False
         self.thread = None
         self.current_theme = "dark"
+        self.similarity_threshold = 0.3
 
         self.q = queue.Queue()
         self.model = vosk.Model('model_small')
         self.device = sd.default.device
         self.samplerate = int(sd.query_devices(self.device[0], 'input')['default_samplerate'])
 
-        self.vectorizer = CountVectorizer()
-        vectors = self.vectorizer.fit_transform(list(words.data_set.keys()))
-        self.clf = LogisticRegression()
-        self.clf.fit(vectors, list(words.data_set.values()))
+        self.vectorizer = TfidfVectorizer(analyzer='char_wb', ngram_range=(2, 4))
+        self.command_vectors = self.vectorizer.fit_transform(list(words.data_set.keys()))
+        self.commands = list(words.data_set.keys())
+        self.responses = list(words.data_set.values())
         del words.data_set
 
         self.setup_ui()
@@ -82,7 +84,7 @@ class VoiceAssistantApp:
 
         self.title_label = ctk.CTkLabel(
             self.main_frame,
-            text="🎤 Боря",
+            text="🎤 Нова",
             font=ctk.CTkFont(size=28, weight="bold"),
             text_color=("#000000", "#FFFFFF"),
         )
@@ -132,7 +134,7 @@ class VoiceAssistantApp:
 
         self.hint_label = ctk.CTkLabel(
             self.main_frame,
-            text="Скажите \"Боря\" для активации",
+            text="Скажите \"Нова\" для активации",
             font=ctk.CTkFont(size=11),
             text_color=("#666666", "#999999")
         )
@@ -222,7 +224,7 @@ class VoiceAssistantApp:
         )
         self.status_indicator.configure(text_color="#4CAF50")
         self.status_label.configure(text="Активен - слушаю...")
-        self.hint_label.configure(text="Говорите команду после слова \"Боря\"")
+        self.hint_label.configure(text="Говорите команду после слова \"Нова\"")
 
         self.thread = threading.Thread(target=self._run_assistant, daemon=True)
         self.thread.start()
@@ -237,8 +239,8 @@ class VoiceAssistantApp:
         )
         self.status_indicator.configure(text_color="#FF5252")
         self.status_label.configure(text="Остановлен")
-        self.hint_label.configure(text="Скажите \"Боря\" для активации")
-        self.title_label.configure(text="🎤 Боря")
+        self.hint_label.configure(text="Скажите \"Нова\" для активации")
+        self.title_label.configure(text="🎤 Нова")
         print("Остановка ассистента...")
 
     def on_closing(self):
@@ -261,9 +263,18 @@ class VoiceAssistantApp:
         if not data:
             return
 
-        text_vector = self.vectorizer.transform([data]).toarray()[0]
-        answer = self.clf.predict([text_vector])[0]
+        data_vector = self.vectorizer.transform([data])
+        similarities = cosine_similarity(data_vector, self.command_vectors)[0]
+        best_match_index = np.argmax(similarities)
+        best_similarity = similarities[best_match_index]
 
+        print(f"Лучшее совпадение: '{self.commands[best_match_index]}' (сходство: {best_similarity:.2f})")
+
+        if best_similarity < self.similarity_threshold:
+            print("Недостаточное сходство с известными командами")
+            return
+
+        answer = self.responses[best_match_index]
         func_name = answer.split()[0]
         response_text = answer.replace(func_name, '').strip()
 
@@ -277,7 +288,7 @@ class VoiceAssistantApp:
             voice.speaker("Произошла ошибка при выполнении команды")
 
     def _run_assistant(self):
-        print("Ассистент готов. Скажите 'Боря' для активации...")
+        print("Ассистент готов. Скажите 'Нова' для активации...")
         rec = vosk.KaldiRecognizer(self.model, self.samplerate)
 
         stream = sd.RawInputStream(

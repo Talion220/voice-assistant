@@ -1,4 +1,4 @@
-TRIGGERS = {'боря','борис'}
+TRIGGERS = {'нова'}
 
 data_set = {
 
